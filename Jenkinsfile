@@ -2,14 +2,8 @@ pipeline {
     agent any
 
     environment {
-        // Required for CI environments running React/Vite builds
         CI = 'true'
     }
-
-    // Uncomment and configure the tools block if you are using the NodeJS Plugin in Jenkins
-    // tools {
-    //     nodejs 'NodeJS' // Make sure 'NodeJS' matches the name in Manage Jenkins -> Global Tool Configuration
-    // }
 
     stages {
         stage('Checkout') {
@@ -18,27 +12,32 @@ pipeline {
             }
         }
 
+        stage('Verify Node') {
+            steps {
+                bat 'node -v'
+                bat 'npm -v'
+            }
+        }
+
         stage('Install Dependencies') {
             steps {
                 echo 'Installing dependencies for root, server, and client...'
-                // Note: If your Jenkins agent is running on Windows, change 'sh' to 'bat'
-                sh 'npm run install-all'
+                bat 'npm install'
+                bat 'cd client && npm install'
             }
         }
 
         stage('Build Client') {
             steps {
                 echo 'Building Vite React client...'
-                // Note: If your Jenkins agent is running on Windows, change 'sh' to 'bat'
-                sh 'npm run build --prefix client'
+                bat 'cd client && npm run build'
             }
         }
-        
-        // Optional: Run tests once you configure them in package.json
+
         stage('Test') {
             steps {
                 echo 'Running tests...'
-                // sh 'npm test'
+                // bat 'npm test'
             }
         }
     }
