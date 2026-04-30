@@ -4,6 +4,7 @@ const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const db = require('./database');
+const nodemailer = require('nodemailer');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -11,6 +12,14 @@ const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkey_studyplanner';
 
 app.use(cors());
 app.use(express.json());
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'smartstudyapp8@gmail.com',
+    pass: 'exov lqgv nsaf qnrr'
+  }
+});
 
 // Middleware to verify JWT
 const authenticateToken = (req, res, next) => {
@@ -56,6 +65,58 @@ app.post('/api/auth/login', async (req, res) => {
 
   const token = jwt.sign({ id: user.id, name: user.name }, JWT_SECRET);
   res.json({ token, user: { id: user.id, name: user.name, email: user.email } });
+});
+
+app.post('/api/auth/forgot-password', async (req, res) => {
+  const { email } = req.body;
+  const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
+  if (!user) return res.status(404).json({ error: 'User not found' });
+
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+
+  const stmt = db.prepare(`
+    INSERT INTO password_resets (email, otp, expires_at) 
+    VALUES (?, ?, ?) 
+    ON CONFLICT(email) DO UPDATE SET otp = excluded.otp, expires_at = excluded.expires_at
+  `);
+  stmt.run(email, otp, expiresAt);
+
+  try {
+    await transporter.sendMail({
+      from: 'smartstudyapp8@gmail.com',
+      to: email,
+      subject: 'Password Reset OTP',
+      text: `Your OTP for password reset is ${otp}. It is valid for 15 minutes.`
+    });
+    res.json({ message: 'OTP sent successfully' });
+  } catch (error) {
+    console.error('Error sending email:', error);
+    res.status(500).json({ error: 'Failed to send OTP email' });
+  }
+});
+
+app.post('/api/auth/reset-password', async (req, res) => {
+  const { email, otp, newPassword } = req.body;
+  const record = db.prepare('SELECT * FROM password_resets WHERE email = ?').get(email);
+
+  if (!record || record.otp !== otp) {
+    return res.status(400).json({ error: 'Invalid OTP' });
+  }
+
+  if (new Date(record.expires_at) < new Date()) {
+    db.prepare('DELETE FROM password_resets WHERE email = ?').run(email);
+    return res.status(400).json({ error: 'OTP has expired' });
+  }
+
+  try {
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    db.prepare('UPDATE users SET password = ? WHERE email = ?').run(hashedPassword, email);
+    db.prepare('DELETE FROM password_resets WHERE email = ?').run(email);
+    res.json({ message: 'Password reset successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to reset password' });
+  }
 });
 
 // Subject Routes

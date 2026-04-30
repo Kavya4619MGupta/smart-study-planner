@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, KeyRound, BookOpen, Loader2 } from 'lucide-react';
+import { Mail, Lock, KeyRound, BookOpen, Loader2, Eye, EyeOff } from 'lucide-react';
 import axios from 'axios';
 
 const API_URL = 'http://localhost:5000/api';
@@ -10,6 +10,7 @@ const ForgotPassword = () => {
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [showNewPassword, setShowNewPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
@@ -95,12 +96,19 @@ const ForgotPassword = () => {
             <div className="input-group">
               <Lock size={18} className="input-icon" />
               <input
-                type="password"
+                type={showNewPassword ? "text" : "password"}
                 placeholder="New Password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 required
               />
+              <button 
+                type="button" 
+                className="password-toggle" 
+                onClick={() => setShowNewPassword(!showNewPassword)}
+              >
+                {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
             </div>
 
             <button type="submit" className="btn btn-primary w-full" disabled={loading}>
@@ -187,6 +195,20 @@ const ForgotPassword = () => {
         }
         input:focus {
           border-color: var(--primary);
+        }
+        .password-toggle {
+          position: absolute;
+          right: 1rem;
+          background: none;
+          border: none;
+          color: var(--text-muted);
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          padding: 0;
+        }
+        .password-toggle:hover {
+          color: var(--text-main);
         }
         .success-message {
           color: #10b981;

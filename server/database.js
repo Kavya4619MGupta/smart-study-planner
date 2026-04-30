@@ -44,6 +44,12 @@ db.exec(`
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE CASCADE
   );
+
+  CREATE TABLE IF NOT EXISTS password_resets (
+    email TEXT PRIMARY KEY,
+    otp TEXT NOT NULL,
+    expires_at DATETIME NOT NULL
+  );
 `);
 
 module.exports = db;
