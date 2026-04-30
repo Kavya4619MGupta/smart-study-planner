@@ -129,7 +129,7 @@ This project is for educational purposes.
 
 ## 👨‍💻 Author
 
-Your Name
+Kavya Gupta
 B.Tech CSE
 
 ---
