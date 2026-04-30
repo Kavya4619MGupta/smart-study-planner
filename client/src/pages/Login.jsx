@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Mail, Lock, Loader2, BookOpen, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, Loader2, BookOpen } from 'lucide-react';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
@@ -51,23 +50,12 @@ const Login = () => {
           <div className="input-group">
             <Lock size={18} className="input-icon" />
             <input
-              type={showPassword ? "text" : "password"}
+              type="password"
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-            <button 
-              type="button" 
-              className="password-toggle" 
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-            </button>
-          </div>
-          
-          <div style={{ textAlign: 'right', marginTop: '-0.5rem' }}>
-            <Link to="/forgot-password" style={{ fontSize: '0.875rem', color: 'var(--primary)', textDecoration: 'none' }}>Forgot Password?</Link>
           </div>
 
           {error && <div className="error-message">{error}</div>}
@@ -146,20 +134,6 @@ const Login = () => {
         }
         input:focus {
           border-color: var(--primary);
-        }
-        .password-toggle {
-          position: absolute;
-          right: 1rem;
-          background: none;
-          border: none;
-          color: var(--text-muted);
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          padding: 0;
-        }
-        .password-toggle:hover {
-          color: var(--text-main);
         }
         .error-message {
           color: #ef4444;

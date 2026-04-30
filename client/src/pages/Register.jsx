@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { User, Mail, Lock, Loader2, BookOpen, Eye, EyeOff } from 'lucide-react';
+import { User, Mail, Lock, Loader2, BookOpen } from 'lucide-react';
 
 const Register = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
@@ -62,19 +61,12 @@ const Register = () => {
           <div className="input-group">
             <Lock size={18} className="input-icon" />
             <input
-              type={showPassword ? "text" : "password"}
+              type="password"
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-            <button 
-              type="button" 
-              className="password-toggle" 
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-            </button>
           </div>
 
           {error && <div className="error-message">{error}</div>}
@@ -153,20 +145,6 @@ const Register = () => {
         }
         input:focus {
           border-color: var(--primary);
-        }
-        .password-toggle {
-          position: absolute;
-          right: 1rem;
-          background: none;
-          border: none;
-          color: var(--text-muted);
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          padding: 0;
-        }
-        .password-toggle:hover {
-          color: var(--text-main);
         }
         .error-message {
           color: #ef4444;
